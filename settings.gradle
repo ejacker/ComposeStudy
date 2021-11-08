@@ -1,0 +1,14 @@
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
+        google()
+    }
+}
+rootProject.name = "ComposeStudy"
+include ':firstdemo'
+include ':state'
+include ':messagecard'
+include ':mavericksdemo'
+include ':wechat'
