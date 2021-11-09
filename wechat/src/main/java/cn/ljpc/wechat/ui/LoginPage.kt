@@ -3,27 +3,25 @@ package cn.ljpc.wechat.ui
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocal
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import cn.ljpc.wechat.model.Data
-import cn.ljpc.wechat.model.InputParams
 import cn.ljpc.wechat.viewmodel.LoginViewModel
 import cn.ljpc.wechat.viewmodel.UserViewModel
 import com.airbnb.mvrx.compose.collectAsState
+import com.airbnb.mvrx.compose.mavericksViewModel
 import kotlinx.coroutines.*
-import cn.ljpc.wechat.ui.TipDialog as TipDialog
 
 @Composable
-fun LoginPage(navController: NavController?) {
+fun LoginPage(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -34,12 +32,23 @@ fun LoginPage(navController: NavController?) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val loginViewModel: LoginViewModel = mavericksViewModel()
+        val userViewModel: UserViewModel = mavericksViewModel()
+        val loginState = loginViewModel.collectAsState()
         Header("登录")
-        val loginViewModel = LoginViewModel()
-        val userViewModel = UserViewModel()
-        LoginForm(loginViewModel, userViewModel, navController = navController)
-        LoadingDialog(loginViewModel, "登录中")
-        TipDialog("提示", loginViewModel)
+        LoginForm(loginViewModel, userViewModel, navController)
+        LoadingDialog(content = "登录中", isShow = loginState.value.buttonState)
+        TipDialog(
+            title = "提示",
+            contextMsg = loginState.value.feedbackMeg,
+            isShow = loginState.value.loginSuccess,
+            onDismissRequest = {
+                loginViewModel.setLoginSate(false)
+            },
+            onConfirmButtonClick = {
+                loginViewModel.setLoginSate(false)
+            }
+        )
     }
 }
 
@@ -47,21 +56,25 @@ fun LoginPage(navController: NavController?) {
 fun LoginForm(
     loginViewModel: LoginViewModel,
     userViewModel: UserViewModel,
-    navController: NavController?
+    navController: NavController
 ) {
     val userState = userViewModel.collectAsState()
     Column(modifier = Modifier.padding(bottom = 24.dp)) {
         Input(
             Modifier.padding(bottom = 16.dp),
             label = "用户名",
-            viewModel = userViewModel,
-            inputParams = InputParams.USERNAME
+            value = userState.value.username,
+            valueChange = {
+                userViewModel.setUsername(it)
+            }
         )
         Input(
             label = "密码",
             isSecure = true,
-            viewModel = userViewModel,
-            inputParams = InputParams.PASSWORD
+            value = userState.value.password,
+            valueChange = {
+                userViewModel.setPassword(it)
+            }
         )
     }
     Button(
@@ -77,7 +90,7 @@ fun LoginForm(
                         ) {
                             Log.d("jie", "验证信息完成")
                             //跳转到主界面
-                            navController!!.navigate("mainPage")
+                            navController.navigate("mainPage")
                             loginViewModel.setButtonState(false)
                             return@launch
                         }
@@ -100,10 +113,4 @@ fun LoginForm(
     ) {
         Text(text = "登录", color = Color.White)
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreViewLoginPage() {
-    LoginPage(null)
 }

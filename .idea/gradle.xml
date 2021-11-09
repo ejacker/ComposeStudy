@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/firstdemo" />
             <option value="$PROJECT_DIR$/mavericksdemo" />
             <option value="$PROJECT_DIR$/messagecard" />
+            <option value="$PROJECT_DIR$/mvi" />
             <option value="$PROJECT_DIR$/state" />
             <option value="$PROJECT_DIR$/wechat" />
           </set>

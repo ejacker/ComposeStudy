@@ -1,11 +1,11 @@
 package cn.ljpc.wechat.viewmodel
 
-import cn.ljpc.wechat.model.User
+import cn.ljpc.wechat.model.UserLogin
 import com.airbnb.mvrx.MavericksViewModel
 
 //initialState不需要传输默认值
-class UserViewModel(initialState: User) :
-    MavericksViewModel<User>(initialState) {
+class UserLoginViewModel(initialState: UserLogin) :
+    MavericksViewModel<UserLogin>(initialState = initialState) {
 
     fun setUsername(username: String) = setState {
         copy(username = username)
@@ -17,5 +17,9 @@ class UserViewModel(initialState: User) :
 
     fun setPassword(password: String) = setState {
         copy(password = password)
+    }
+
+    fun setRepassword(password: String) = setState {
+        copy(repassword = password)
     }
 }

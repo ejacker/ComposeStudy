@@ -31,23 +31,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             ComposeStudyTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    //使用navigation 路由
-                    val navController = rememberNavController()
-                    NavHost(navController, startDestination = "firstPage") {
+                    val nav = rememberNavController()
+//                    CompositionLocalProvider(MyNavController provides nav) {
+                    NavHost(nav, startDestination = "firstPage") {
                         composable("firstPage") {
-                            FirstPage(navController = navController)
+                            FirstPage(navController = nav)
                         }
                         composable("loginPage") {
-                            LoginPage(navController = navController)
+                            LoginPage(navController = nav)
                         }
                         composable("registerPage") {
-                            RegisterPage(navController = navController)
+                            RegisterPage(navController = nav)
                         }
                         composable("mainPage") {
-                            MainPage(navController = navController)
+                            MainPage(navController = nav)
                         }
                     }
                 }
+//                }
             }
         }
     }

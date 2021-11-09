@@ -1,5 +1,6 @@
 package cn.ljpc.wechat.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -15,9 +16,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import cn.ljpc.wechat.R
+import cn.ljpc.wechat.data.LocalString
 
 @Composable
 fun FirstPage(navController: NavController?) {
+    //使用LocalString
+    Log.d("jie", "当前的值：${LocalString.current}")
     Image(
         painter = painterResource(id = R.drawable.wechat_font),
         contentDescription = "首页图片",

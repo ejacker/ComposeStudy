@@ -8,21 +8,18 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import cn.ljpc.wechat.model.Data
-import cn.ljpc.wechat.model.InputParams
 import cn.ljpc.wechat.model.User
 import cn.ljpc.wechat.util.checkMail
 import cn.ljpc.wechat.viewmodel.LoginViewModel
-import cn.ljpc.wechat.viewmodel.UserViewModel
+import cn.ljpc.wechat.viewmodel.UserLoginViewModel
 import com.airbnb.mvrx.compose.collectAsState
+import com.airbnb.mvrx.compose.mavericksViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -38,56 +35,79 @@ fun RegisterPage(navController: NavController?) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val userLoginViewModel: UserLoginViewModel = mavericksViewModel()
+        val loginViewModel: LoginViewModel = mavericksViewModel()
+        val loginState = loginViewModel.collectAsState()
         Header("注册")
-        RegisterForm(navController)
+        RegisterForm(userLoginViewModel, loginViewModel, navController)
+        TipDialog(
+            title = "提示",
+            contextMsg = loginState.value.feedbackMeg,
+            isShow = loginState.value.loginSuccess,
+            onDismissRequest = {
+                loginViewModel.setLoginSate(false)
+            },
+            onConfirmButtonClick = {
+                loginViewModel.setLoginSate(false)
+            }
+        )
+        LoadingDialog(
+            "注册中",
+            isShow = loginState.value.buttonState
+        )
     }
 }
 
 @Composable
-fun RegisterForm(navController: NavController?) {
-    val userViewModel = UserViewModel()
-    val loginViewModel = LoginViewModel()
-    val userState = userViewModel.collectAsState()
-    val passwordState = remember {
-        mutableStateOf("")
-    }
-
+fun RegisterForm(
+    userLoginViewModel: UserLoginViewModel,
+    loginViewModel: LoginViewModel,
+    navController: NavController?
+) {
+    val userLoginState = userLoginViewModel.collectAsState()
     Column(modifier = Modifier.padding(bottom = 24.dp)) {
         Input(
             Modifier.padding(bottom = 16.dp),
             label = "姓名",
-            viewModel = userViewModel,
-            inputParams = InputParams.USERNAME
+            value = userLoginState.value.username,
+            valueChange = {
+                userLoginViewModel.setUsername(it)
+            }
         )
         Input(
             Modifier.padding(bottom = 16.dp),
             label = "邮箱",
-            viewModel = userViewModel,
-            inputParams = InputParams.MAIL
+            value = userLoginState.value.mail,
+            valueChange = {
+                userLoginViewModel.setMail(it)
+            }
         )
         Input(
             label = "输入密码",
-            viewModel = userViewModel,
-            inputParams = InputParams.PASSWORD,
+            value = userLoginState.value.password,
+            valueChange = {
+                userLoginViewModel.setPassword(it)
+            },
             isSecure = true
         )
         Input(
             label = "再次输入密码",
-            viewModel = userViewModel,
-            password = passwordState,
-            inputParams = InputParams.RE_PASSWORD,
+            value = userLoginState.value.password,
+            valueChange = {
+                userLoginViewModel.setPassword(it)
+            },
             isSecure = true
         )
     }
     Button(
         onClick = {
-            if (userState.value.username.trim() == "") {
+            if (userLoginState.value.username.trim() == "") {
                 loginViewModel.setMessage("用户名不能为空")
                 loginViewModel.setLoginSate(true)
                 return@Button
             } else {
                 for (user in Data.users) {
-                    if (user.username == userState.value.username.trim()) {
+                    if (user.username == userLoginState.value.username.trim()) {
                         loginViewModel.setMessage("用户名已存在")
                         loginViewModel.setLoginSate(true)
                         return@Button
@@ -95,26 +115,26 @@ fun RegisterForm(navController: NavController?) {
                 }
             }
 
-            if (userState.value.mail == "") {
+            if (userLoginState.value.mail == "") {
                 loginViewModel.setMessage("邮箱不能为空")
                 loginViewModel.setLoginSate(true)
                 return@Button
             } else {
                 //验证邮箱的格式是否正确
-                if (!checkMail(mail = userState.value.mail)) {
+                if (!checkMail(mail = userLoginState.value.mail)) {
                     loginViewModel.setMessage("邮箱格式有误")
                     loginViewModel.setLoginSate(true)
                     return@Button
                 }
             }
 
-            if (passwordState.value == "" || userState.value.password == "") {
+            if (userLoginState.value.repassword == "" || userLoginState.value.password == "") {
                 loginViewModel.setMessage("密码不能为空")
                 loginViewModel.setLoginSate(true)
                 return@Button
             }
 
-            if (userState.value.password != passwordState.value) {
+            if (userLoginState.value.password != userLoginState.value.repassword) {
                 loginViewModel.setMessage("两次输入的密码需要相同")
                 loginViewModel.setLoginSate(true)
                 return@Button
@@ -123,14 +143,14 @@ fun RegisterForm(navController: NavController?) {
             //做完上面的验证，说明所有提交的信息都合法
             //提交信息
             loginViewModel.setButtonState(true)
-            userViewModel.viewModelScope.launch {
+            userLoginViewModel.viewModelScope.launch {
                 Log.d("jie", "正在提交信息")
                 delay(3000)
                 Data.users.add(
                     User(
-                        userState.value.username,
-                        userState.value.mail,
-                        userState.value.password
+                        userLoginState.value.username,
+                        userLoginState.value.mail,
+                        userLoginState.value.password
                     )
                 )
                 Log.d("jie", "提交信息成功")
@@ -148,14 +168,5 @@ fun RegisterForm(navController: NavController?) {
     ) {
         Text(text = "注册", color = Color.White)
     }
-    TipDialog(title = "提示", loginViewModel = loginViewModel)
-    LoadingDialog(loginViewModel = loginViewModel, "注册中...")
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreViewRegisterPage() {
-    LoginPage(null)
-}
-
 
