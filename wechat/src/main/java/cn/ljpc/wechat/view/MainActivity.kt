@@ -18,12 +18,6 @@ import com.airbnb.mvrx.Mavericks
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 设置系统全屏
-//        requestWindowFeature(Window.FEATURE_NO_TITLE)
-//        window.setFlags(
-//            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//            WindowManager.LayoutParams.FLAG_FULLSCREEN
-//        )
 
         //初始化Mavericks
         Mavericks.initialize(this)
@@ -32,7 +26,6 @@ class MainActivity : ComponentActivity() {
             ComposeStudyTheme {
                 Surface(color = MaterialTheme.colors.background) {
                     val nav = rememberNavController()
-//                    CompositionLocalProvider(MyNavController provides nav) {
                     NavHost(nav, startDestination = "firstPage") {
                         composable("firstPage") {
                             FirstPage(navController = nav)
@@ -48,7 +41,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-//                }
             }
         }
     }

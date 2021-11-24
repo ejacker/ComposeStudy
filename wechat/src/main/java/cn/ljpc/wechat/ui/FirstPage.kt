@@ -1,6 +1,5 @@
 package cn.ljpc.wechat.ui
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -16,49 +15,60 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import cn.ljpc.wechat.R
-import cn.ljpc.wechat.data.LocalString
 
 @Composable
 fun FirstPage(navController: NavController?) {
-    //使用LocalString
-    Log.d("jie", "当前的值：${LocalString.current}")
     Image(
         painter = painterResource(id = R.drawable.wechat_font),
         contentDescription = "首页图片",
         modifier = Modifier.fillMaxSize(1f),
         contentScale = ContentScale.FillBounds,//设置图片的缩放方式，当前是全屏模式
     )
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom,
-        modifier = Modifier.fillMaxSize(1f)
-    ) {
-        Button(
-            onClick = {
-                navController!!.navigate("loginPage")
-            },
-            modifier = Modifier
-                .padding(0.dp, 0.dp, 0.dp, 100.dp)
-                .size(150.dp, 50.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.White
-            )
-        ) {
-            Text(text = "登录", color = Color(0, 201, 87))
+    LoginAndRegisterButton(
+        loginClick = {
+            navController!!.navigate("loginPage")
+        }, registerClick = {
+            navController!!.navigate("registerPage")
         }
-        //添加间隔
-        Spacer(modifier = Modifier.size(30.dp))
+    )
+}
 
-        Button(
-            onClick = { navController!!.navigate("registerPage") },
-            modifier = Modifier
-                .padding(0.dp, 0.dp, 0.dp, 100.dp)
-                .size(150.dp, 50.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0, 201, 87)
-            )
+@Composable
+fun LoginAndRegisterButton(
+    modifier: Modifier = Modifier,
+    isShow: Boolean = true,
+    loginClick: () -> Unit,
+    registerClick: () -> Unit
+) {
+    if (isShow) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom,
+            modifier = modifier.fillMaxSize(),
         ) {
-            Text(text = "注册", color = Color.White)
+            Button(
+                onClick = loginClick,
+                modifier = Modifier
+                    .padding(0.dp, 0.dp, 0.dp, 20.dp)
+                    .size(150.dp, 50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.White
+                )
+            ) {
+                Text(text = "登录", color = Color(0, 201, 87))
+            }
+            Spacer(modifier = Modifier.size(30.dp))
+            Button(
+                onClick = registerClick,
+                modifier = Modifier
+                    .padding(0.dp, 0.dp, 0.dp, 20.dp)
+                    .size(150.dp, 50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0, 201, 87)
+                )
+            ) {
+                Text(text = "注册", color = Color.White)
+            }
         }
     }
 }
